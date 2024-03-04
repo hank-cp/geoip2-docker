@@ -3,4 +3,4 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'spring-boot-admin'
+rootProject.name = 'geoip2-docker'

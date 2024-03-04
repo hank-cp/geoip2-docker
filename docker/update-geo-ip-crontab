@@ -1,0 +1,3 @@
+# must be ended with a new line "LF" (Unix) and not "CRLF" (Windows)
+44 23 * * 6,3 /usr/bin/geoipupdate
+# An empty line is required at the end of this file for a valid cron file.

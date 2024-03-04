@@ -1,4 +1,4 @@
-package com.laxture.sbad;
+package org.laxture.geoip2;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

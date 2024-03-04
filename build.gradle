@@ -1,21 +1,25 @@
 buildscript {
 	repositories {
-		jcenter()
 		mavenCentral()
-		maven { url 'http://repo.spring.io/plugins-release' }
+		maven { url 'https://repo.spring.io/plugins-release' }
 	}
 	dependencies {
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:1.5.19.RELEASE"
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
 	}
 }
 
 plugins {
-	id 'com.bmuschko.docker-java-application' version '4.7.1'
+	id 'idea'
+	id 'com.bmuschko.docker-remote-api' version '9.3.1'
+	id 'com.bmuschko.docker-java-application' version '9.3.1'
 }
 
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'io.spring.dependency-management'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'com.bmuschko.docker-remote-api'
+apply plugin: 'com.bmuschko.docker-java-application'
 
 //*************************************************************************
 // IDEA
@@ -34,11 +38,11 @@ idea {
 // Project Config
 //*************************************************************************
 
-group = 'com.laxture'
-version = "$ver"
+group = 'org.laxture'
+version = "${geoip2Version}"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 tasks.withType(AbstractCompile) {
 	options.encoding = 'UTF-8'
@@ -47,30 +51,52 @@ tasks.withType(Javadoc) {
 	options.encoding = 'UTF-8'
 }
 
-mainClassName = 'com.laxture.sbad.SpringBootAdminDockerApplication'
+mainClassName = 'org.laxture.geoip2.GeoIp2Application'
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-
-	implementation "de.codecentric:spring-boot-admin-starter-server:$ver"
-	implementation "de.codecentric:spring-boot-admin-server-ui:$ver"
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation "com.maxmind.geoip2:geoip2:${geoip2Version}"
 }
+
+dependencyManagement {
+	imports {
+		mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+	}
+}
+
+def dockerTagVersioned = "${project.name}:${version}"
+def dockerTagLatest = "${project.name}:latest"
+def dockerTags = [dockerTagVersioned, dockerTagLatest]
 
 docker {
 	javaApplication {
-		baseImage = 'openjdk'
-		tag = "${project.name}:${ver}"
+		baseImage = 'openjdk:17.0.2-slim'
+		images = dockerTags
 		ports = [Integer.valueOf(port)]
+		maintainer = 'Hank_CP "true.cp@gmail.com"'
 	}
 }
 
 dockerCreateDockerfile {
-	label(['maintainer': 'Hank_CP "true.cp@gmail.com"',
-		   'version': ver])
-	environmentVariable 'JAVA_OPTS', '-XX:NewSize=192m -XX:+UseParallelOldGC -XX:+UseAdaptiveSizePolicy -XX:MaxGCPauseMillis=1000 -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom'
+	addFile 'https://github.com/maxmind/geoipupdate/releases/download/v6.1.0/geoipupdate_6.1.0_linux_arm64.deb', '/opt/geoipupdate_6.1.0.deb'
+	runCommand 'apt-get update && apt-get install -y cron'
+	runCommand 'dpkg -i /opt/geoipupdate_6.1.0.deb'
+	runCommand provider({
+		return 'touch app.sh && echo "#!/bin/bash" >> app.sh && echo "/usr/bin/geoipupdate" && echo "java \\$JAVA_OPT -cp /app/resources:/app/classes:/app/libs/* ' + mainClassName + '" >> app.sh && chmod +x app.sh'
+	})
+	runCommand 'echo "44 23 * * 6,3 /usr/bin/geoipupdate" > /etc/cron.d/update-geo-ip'
+	runCommand 'chmod 0644 /etc/cron.d/update-geo-ip'
+	runCommand 'crontab /etc/cron.d/update-geo-ip'
+	entryPoint ''
+	workingDir '/app'
+	defaultCommand '/app/app.sh'
+}
+
+dockerSyncBuildContext {
+	duplicatesStrategy DuplicatesStrategy.INCLUDE
 }

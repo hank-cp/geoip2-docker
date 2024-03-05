@@ -25,10 +25,19 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
-      - run: ./gradlew dockerBuildImage
-      - run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/geoip2-docker
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@v5
-#        with:
-#          push: true
-#          tags: hankcp/geoip2-docker:2.15.0, hankcp/geoip2-docker:latest
+      - run: ./gradlew dockerCreateDockerfile
+#      - run: ./gradlew dockerBuildImage
+#      - run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/geoip2-docker
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: hankcp/geoip2-docker
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./build/docker/
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

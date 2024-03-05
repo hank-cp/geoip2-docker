@@ -26,8 +26,9 @@ jobs:
         with:
           java-version: 17
       - run: ./gradlew dockerBuildImage
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: hankcp/geoip2-docker:2.15.0, hankcp/geoip2-docker:latest
+      - run: docker push hankcp/geoip2-docker
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v5
+#        with:
+#          push: true
+#          tags: hankcp/geoip2-docker:2.15.0, hankcp/geoip2-docker:latest

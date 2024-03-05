@@ -1,0 +1,29 @@
+version: '3'
+
+networks:
+  shared:
+    external:
+      name: shared
+
+services:
+  geoip2:
+    image: hankcp/geoip2-docker:2.15.0
+    container_name: geoip2
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    ports:
+      - 8080:8080
+    environment:
+      GEOIPUPDATE_ACCOUNT_ID: ${GEOIPUPDATE_ACCOUNT_ID}
+      GEOIPUPDATE_LICENSE_KEY: ${GEOIPUPDATE_LICENSE_KEY}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    tmpfs:
+      - /tmp
+    command: sh -c "./app.sh"
+    networks:
+      - shared

@@ -32,10 +32,3 @@ docker run --name geoip2-docker -p 8080:8080 \
 ```
 ./gradlew dockerBuildImage
 ```
-
-
-docker run --name geoip2-docker -p 8080:8080 --rm \
--e GEOIPUPDATE_ACCOUNT_ID=910644 \
--e GEOIPUPDATE_LICENSE_KEY=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 \
--e GEOIPUPDATE_EDITION_IDS="GeoLite2-Country GeoLite2-City GeoLite2-ASN" \
-geoip2-docker:2.15.0

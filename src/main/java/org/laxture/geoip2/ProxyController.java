@@ -18,8 +18,8 @@ import java.net.InetAddress;
 @RestController
 public class ProxyController {
 
-    public static final String CITY_DATABASE_PATH = "/usr/share/GeoIp/GeoLite2-City.mmdb";
-    public static final String ASN_DATABASE_PATH = "/usr/share/GeoIp/GeoLite2-ASN.mmdb";
+    public static final String CITY_DATABASE_PATH = "/usr/share/GeoIP/GeoLite2-City.mmdb";
+    public static final String ASN_DATABASE_PATH = "/usr/share/GeoIP/GeoLite2-ASN.mmdb";
 
     private DatabaseReader cityDatabaseReader;
 

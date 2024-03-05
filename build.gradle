@@ -83,15 +83,17 @@ docker {
 }
 
 dockerCreateDockerfile {
-	addFile 'https://github.com/maxmind/geoipupdate/releases/download/v6.1.0/geoipupdate_6.1.0_linux_arm64.deb', '/opt/geoipupdate_6.1.0.deb'
-	runCommand 'apt-get update && apt-get install -y cron'
+	addFile 'https://github.com/maxmind/geoipupdate/releases/download/v6.1.0/geoipupdate_6.1.0_linux_amd64.deb', '/opt/geoipupdate_6.1.0.deb'
+	runCommand 'apt-get update && apt-get install -y cron curl'
 	runCommand 'dpkg -i /opt/geoipupdate_6.1.0.deb'
 	runCommand provider({
-		return 'touch app.sh && echo "#!/bin/bash" >> app.sh && echo "/usr/bin/geoipupdate" && echo "java \\$JAVA_OPT -cp /app/resources:/app/classes:/app/libs/* ' + mainClassName + '" >> app.sh && chmod +x app.sh'
+		return 'touch app.sh && echo "#!/bin/bash" >> app.sh && echo "/opt/update-database.sh" >> app.sh && echo "java \\$JAVA_OPT -cp /app/resources:/app/classes:/app/libs/* ' + mainClassName + '" >> app.sh && chmod +x app.sh'
 	})
-	runCommand 'echo "44 23 * * 6,3 /usr/bin/geoipupdate" > /etc/cron.d/update-geo-ip'
+	runCommand 'echo "44 23 * * 6,3 /opt/update-database.sh" > /etc/cron.d/update-geo-ip'
 	runCommand 'chmod 0644 /etc/cron.d/update-geo-ip'
 	runCommand 'crontab /etc/cron.d/update-geo-ip'
+	addFile 'https://raw.githubusercontent.com/hank-cp/geoip2-docker/main/docker/update-database.sh', '/opt/update-database.sh'
+	runCommand 'chmod a+x /opt/update-database.sh'
 	entryPoint ''
 	workingDir '/app'
 	defaultCommand '/app/app.sh'

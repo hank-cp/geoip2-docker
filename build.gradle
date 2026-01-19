@@ -39,7 +39,7 @@ idea {
 //*************************************************************************
 
 group = 'org.laxture'
-version = "${geoip2Version}"
+version = "${geoip2Version}${patchVersion}"
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17

@@ -4,7 +4,7 @@ Docker Image for https://github.com/codecentric/spring-boot-admin
 ### Usage
 #### Pull image from Docker Hub
 ```
-docker pull hankcp/geoip2-docker:2.15.0
+docker pull hankcp/geoip2-docker:2.15.1
 ```
 #### Run in container
 ```
@@ -12,7 +12,7 @@ docker run --name geoip2-docker -p 8080:8080 \
   -e GEOIPUPDATE_ACCOUNT_ID=YOUR_MAXMIND_ACCOUNT_ID \
   -e GEOIPUPDATE_LICENSE_KEY=YOUR_MAXMIND_LICENSE_KEY \
   -e GEOIPUPDATE_EDITION_IDS="GeoLite2-Country GeoLite2-City GeoLite2-ASN" \
-  geoip2-docker:2.15.0
+  geoip2-docker:2.15.1
 ```
 #### Environment Variables
 * The Docker image is configured by environment variables. The following variables are required:
